@@ -17,7 +17,7 @@ CREATE TABLE locations (
     boosted_element_2 VARCHAR(50)
 );
 
--- Tabela przedmiotów i ich statystyk (18 kolumn)
+-- Tabela przedmiotów i ich statystyk
 CREATE TABLE items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -26,20 +26,20 @@ CREATE TABLE items (
     magical_power INT DEFAULT 0,
     physical_penetration INT DEFAULT 0,
     magical_penetration INT DEFAULT 0,
-    physical_penetration_perc DECIMAL(3,2) DEFAULT 0, -- procentowe przebicie pancerza fizycznego
-    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,  -- procentowe przebicie pancerza magicznego
+    physical_penetration_perc DECIMAL(3,2) DEFAULT 0,   -- procentowe przebicie pancerza fizycznego
+    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,    -- procentowe przebicie pancerza magicznego
     physical_armor INT DEFAULT 0,
     magical_armor INT DEFAULT 0,
     hp INT DEFAULT 0,
-    life_steal_perc DECIMAL(3,2) DEFAULT 0,           -- procentowa kradzież życia zależna od zadanych obrażeń
+    life_steal_perc DECIMAL(3,2) DEFAULT 0, -- procentowa kradzież życia zależna od zadanych obrażeń
     dodge_chance DECIMAL(3,2) DEFAULT 0,
-    heal_value INT DEFAULT 0,                          -- leczenie dla mikstury
-    all_dmg_up DECIMAL(3,2) DEFAULT 0,                 -- procentowe dodane obrażenia jeśli to mikstura
-    all_max_hp_up DECIMAL(3,2) DEFAULT 0,              -- procentowe dodane życie jeśli to mikstura
+    heal_value INT DEFAULT 0,   -- leczenie dla mikstury
+    all_dmg_up DECIMAL(3,2) DEFAULT 0,  -- procentowe dodane obrażenia jeśli to mikstura
+    all_max_hp_up DECIMAL(3,2) DEFAULT 0,   -- procentowe dodane życie jeśli to mikstura
     description TEXT
 );
 
--- Tabela z gatunkami cudaków i ich bazowymi statystykami (15 kolumn)
+-- Tabela z gatunkami cudaków i ich bazowymi statystykami
 CREATE TABLE monster_catalog (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -49,12 +49,12 @@ CREATE TABLE monster_catalog (
     magical_power INT DEFAULT 0,
     physical_penetration INT DEFAULT 0,
     magical_penetration INT DEFAULT 0,
-    physical_penetration_perc DECIMAL(3,2) DEFAULT 0, -- procentowe przebicie pancerza fizycznego
-    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,  -- procentowe przebicie pancerza magicznego
+    physical_penetration_perc DECIMAL(3,2) DEFAULT 0,   -- procentowe przebicie pancerza fizycznego
+    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,    -- procentowe przebicie pancerza magicznego
     physical_armor INT DEFAULT 0,
     magical_armor INT DEFAULT 0,
     hp INT DEFAULT 0,
-    life_steal_perc DECIMAL(3,2) DEFAULT 0,           -- procentowa kradzież życia zależna od zadanych obrażeń
+    life_steal_perc DECIMAL(3,2) DEFAULT 0, -- procentowa kradzież życia zależna od zadanych obrażeń
     dodge_chance DECIMAL(3,2) DEFAULT 0
 );
 
@@ -74,32 +74,32 @@ CREATE TABLE characters (
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );
 
--- Tabela dla konkretnych cudaków należących do gracza (18 kolumn)
+-- Tabela dla konkretnych cudaków należących do gracza
 CREATE TABLE monsters (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    character_id INT NOT NULL,
+    character_id INT,
     species_id INT NOT NULL,
     level INT DEFAULT 1,
-    current_hp INT DEFAULT 0,                          -- aktualne zdrowie cudaka
+    current_hp INT DEFAULT 0,   -- aktualne zdrowie cudaka
+    hp INT DEFAULT 0,   -- maksymalne zdrowie cudaka
     physical_power INT DEFAULT 0,
     magical_power INT DEFAULT 0,
     physical_penetration INT DEFAULT 0,
     magical_penetration INT DEFAULT 0,
-    physical_penetration_perc DECIMAL(3,2) DEFAULT 0, -- procentowe przebicie pancerza fizycznego
-    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,  -- procentowe przebicie pancerza magicznego
+    physical_penetration_perc DECIMAL(3,2) DEFAULT 0,   -- procentowe przebicie pancerza fizycznego
+    magical_penetration_perc DECIMAL(3,2) DEFAULT 0,    -- procentowe przebicie pancerza magicznego
     physical_armor INT DEFAULT 0,
     magical_armor INT DEFAULT 0,
-    hp INT DEFAULT 0,
-    life_steal_perc DECIMAL(3,2) DEFAULT 0,           -- procentowa kradzież życia zależna od zadanych obrażeń
+    life_steal_perc DECIMAL(3,2) DEFAULT 0, -- procentowa kradzież życia zależna od zadanych obrażeń
     dodge_chance DECIMAL(3,2) DEFAULT 0,
-    all_dmg_up DECIMAL(3,2) DEFAULT 0,                 -- procentowe dodane obrażenia (np. z efektu mikstury)
-    all_max_hp_up DECIMAL(3,2) DEFAULT 0,              -- procentowe dodane życie (np. z efektu mikstury)
+    all_dmg_up DECIMAL(3,2) DEFAULT 0,  -- procentowe dodane obrażenia (np. z efektu mikstury)
+    all_max_hp_up DECIMAL(3,2) DEFAULT 0,   -- procentowe dodane życie (np. z efektu mikstury)
     
     FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
     FOREIGN KEY (species_id) REFERENCES monster_catalog(id)
 );
 
--- Tabela z ekwipunkiem gracza lub cudaka (6 kolumn)
+-- Tabela z ekwipunkiem gracza lub cudaka
 CREATE TABLE inventory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_id INT NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE inventory (
         (character_id IS NULL AND monster_id IS NOT NULL)
     ),
     CONSTRAINT chk_slot_limits CHECK (
-        (character_id IS NOT NULL AND slot_number BETWEEN 1 AND 50) OR
+        (character_id IS NOT NULL AND slot_number BETWEEN 1 AND 55) OR
         (monster_id IS NOT NULL AND slot_number BETWEEN 1 AND 10)
     ),
     CONSTRAINT uq_character_slot UNIQUE (character_id, slot_number),
@@ -127,7 +127,7 @@ CREATE TABLE inventory (
 
 -- 3. WYPEŁNIANIE DANYCH TESTOWYCH
 
--- Lokacje (5 kolumn)
+-- Lokacje
 INSERT INTO locations (
     id, name, description, boosted_element_1, boosted_element_2
 ) VALUES 
@@ -135,7 +135,7 @@ INSERT INTO locations (
 (2, 'Ognisty Las', 'Wiecznie płonące drzewa dają siłe do walki typowi Ogniowemu i Roślinnemu', 'Fire', 'Grass'),
 (3, 'Lodowa Otchłań', 'Zimno lodu w połączone z zimnem mrocznej otchłani', 'Ice', 'Dark');
 
--- Przedmioty (18 kolumn)
+-- Przedmioty
 INSERT INTO items (
     id, name, type, physical_power, magical_power, 
     physical_penetration, magical_penetration, physical_penetration_perc, magical_penetration_perc, 
@@ -147,7 +147,7 @@ INSERT INTO items (
 (3, 'Mała Mikstura Leczenia', 'Consumable', 0, 0, 0, 0, 0.00, 0.00, 0, 0, 0, 0.00, 0.00, 30, 0.00, 0.00, 'Odnawia 30 punktów życia cudaka.'),
 (4, 'Pierścień Witalności', 'Accessory', 0, 0, 0, 0, 0.00, 0.00, 0, 0, 50, 0.05, 0.00, 0, 0.00, 0.00, 'Daje dodatkowe zdrowie i kradzież życia.');
 
--- Katalog cudaków (15 kolumn)
+-- Katalog cudaków
 INSERT INTO monster_catalog (
     id, name, element_1, element_2, physical_power, magical_power, 
     physical_penetration, magical_penetration, physical_penetration_perc, magical_penetration_perc, 
@@ -157,14 +157,14 @@ INSERT INTO monster_catalog (
 (2, 'Smog Krakowski', 'Dark', 'Dragon', 15, 15, 0, 0, 0.20, 0.20, 0, 0, 80, 0.00, 0.15),
 (3, 'Śnieżka', 'Rock', 'Ice', 30, 10, 0, 0, 0.10, 0.00, 0, 0, 100, 0.00, 0.00);
 
--- Gracze (7 kolumn)
+-- Gracze
 INSERT INTO characters (
     id, name, level, position_x, position_y, location_id, created_at
 ) VALUES 
 (1, 'Makumba', 1, 0, 0, 1, NOW()),
 (2, 'Hymel Jadwiga', 1, 0, 0, 1, NOW());
 
--- Cudaki graczy (18 kolumn)
+-- Cudaki graczy
 INSERT INTO monsters (
     id, character_id, species_id, level, current_hp, 
     physical_power, magical_power, physical_penetration, magical_penetration, 
@@ -175,7 +175,7 @@ INSERT INTO monsters (
 (2, 1, 2, 3, 80, 15, 15, 0, 0, 0.20, 0.20, 0, 0, 0, 0.00, 0.15, 0.00, 0.00), -- Smog Krakowski
 (3, 2, 3, 1, 100, 30, 10, 0, 0, 0.10, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, 0.00); -- Śnieżka
 
--- Ekwipunek / Inventory (6 kolumn)
+-- Ekwipunek / Inventory
 INSERT INTO inventory (
     id, item_id, character_id, monster_id, quantity, slot_number
 ) VALUES 
