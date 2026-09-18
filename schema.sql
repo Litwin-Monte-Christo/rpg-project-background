@@ -103,25 +103,15 @@ CREATE TABLE monsters (
 CREATE TABLE inventory (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_id INT NOT NULL,
-    character_id INT NULL,
-    monster_id INT NULL,
+    owner_type ENUM('CHARACTER', 'MONSTER') NOT NULL, -- Określa rodzaj właściciela
+    owner_id INT NOT NULL,                            -- ID postaci lub cudaka
     quantity INT DEFAULT 1,
     slot_number INT NOT NULL,
 
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
-    FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE CASCADE,
-    FOREIGN KEY (monster_id) REFERENCES monsters(id) ON DELETE CASCADE,
 
-    CONSTRAINT chk_owner CHECK (
-        (character_id IS NOT NULL AND monster_id IS NULL) OR 
-        (character_id IS NULL AND monster_id IS NOT NULL)
-    ),
-    CONSTRAINT chk_slot_limits CHECK (
-        (character_id IS NOT NULL AND slot_number BETWEEN 1 AND 55) OR
-        (monster_id IS NOT NULL AND slot_number BETWEEN 1 AND 10)
-    ),
-    CONSTRAINT uq_character_slot UNIQUE (character_id, slot_number),
-    CONSTRAINT uq_monster_slot UNIQUE (monster_id, slot_number)
+    -- Zapobiega zdublowaniu tego samego slotu u tego samego właściciela
+    CONSTRAINT uq_owner_slot UNIQUE (owner_type, owner_id, slot_number)
 );
 
 
@@ -176,10 +166,8 @@ INSERT INTO monsters (
 (3, 2, 3, 1, 100, 30, 10, 0, 0, 0.10, 0.00, 0, 0, 0, 0.00, 0.00, 0.00, 0.00); -- Śnieżka
 
 -- Ekwipunek / Inventory
-INSERT INTO inventory (
-    id, item_id, character_id, monster_id, quantity, slot_number
-) VALUES 
-(1, 3, 1, NULL, 5, 1), -- 5x Mikstura w slocie 1 gracza Makumba
-(2, 1, 1, NULL, 1, 2), -- Pół Kija w slocie 2 gracza Makumba
-(3, 2, NULL, 1, 1, 1), -- Amelinowa Różdżka na cudaku ID 1
-(4, 4, NULL, 3, 1, 1); -- Pierścień Witalności na cudaku ID 3
+INSERT INTO inventory (id, item_id, owner_type, owner_id, quantity, slot_number) VALUES 
+(1, 3, 'CHARACTER', 1, 5, 1), -- 5x Mikstura u gracza ID 1 (slot 1)
+(2, 1, 'CHARACTER', 1, 1, 2), -- Pół Kija u gracza ID 1 (slot 2)
+(3, 2, 'MONSTER', 1, 1, 1),   -- Amelinowa Różdżka u cudaka ID 1 (slot 1)
+(4, 4, 'MONSTER', 3, 1, 1);   -- Pierścień Witalności u cudaka ID 3 (slot 1)
